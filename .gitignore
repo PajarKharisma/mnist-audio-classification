@@ -1,2 +1,3 @@
 .vscode
 /dataset/audio
+/models/*.h5
