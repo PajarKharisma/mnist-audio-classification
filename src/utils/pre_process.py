@@ -12,7 +12,7 @@ def extract_features(signal, sample_rate):
     mfccs = librosa.feature.mfcc(
         y=signal,
         sr=sample_rate,
-        n_mfcc=20,
+        n_mfcc=40,
         hop_length=int(Param.window_stride * sample_rate),
         n_fft=int(Param.window_size * sample_rate)
     )
