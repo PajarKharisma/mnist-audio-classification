@@ -1,4 +1,5 @@
 from src.config.param import *
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 import librosa
 import numpy as np
@@ -24,3 +25,12 @@ def extract_features(signal, sample_rate):
     deltad = np.mean(deltad.T, axis=0)
 
     return np.concatenate((mfccs, delta, deltad), axis=0) 
+    # return mfccs.reshape(-1)
+
+def padding(features, dim):
+    return pad_sequences(
+        features,
+        maxlen=dim,
+        padding='post',
+        truncating='post'
+    )

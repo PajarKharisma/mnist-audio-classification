@@ -36,17 +36,17 @@ def main():
         labels.append(label)
 
     n_classes = len(set(labels))
-    input_dim = features[0].shape
 
     features = np.array(features)
+    # features = pp.padding(features, Param.features_dim)
     labels = to_categorical(labels, dtype ="uint8")
 
     model = arch.mlp(features.shape[1], n_classes)
     model.summary()
     history = model.fit(
-        features,
-        labels,
-        validation_split=Param.val_split,
+        x=features,
+        y=labels,
+        validation_data=(features, labels),
         epochs=Param.epoch,
         batch_size=Param.batch_size,
         verbose=1
