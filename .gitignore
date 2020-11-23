@@ -2,3 +2,4 @@
 /dataset/audio
 /models/*.h5
 /test/*
+/history/*
