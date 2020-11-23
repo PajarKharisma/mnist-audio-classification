@@ -22,7 +22,7 @@ import src.utils.visual as vis
 def create_dataset():
     data_preparation.create_csv(Path.csv_file, Path.audio_file)
 
-def main():
+def mfcc():
     df = pd.read_csv(Path.csv_file)
     features = []
     labels = []
@@ -35,10 +35,75 @@ def main():
         features.append(feature)
         labels.append(label)
 
-    n_classes = len(set(labels))
-
     features = np.array(features)
-    # features = pp.padding(features, Param.features_dim)
+
+    return feature, labels
+
+def audio_energy(norm=True):
+    df = pd.read_csv(Path.csv_file)
+    features = []
+    labels = []
+    
+    for index, row in df.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file + row['file'], res_type='kaiser_fast')
+        frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
+        energy = np.array([pp.audio_energy(frame) for frame in frames])
+        if norm:
+            energy = pp.norm_feature(energy)
+        features.append(energy)
+
+        label = int(row['class'])
+        labels.append(label)
+
+    features = pp.padding(features, Param.features_dim)
+
+    return features, labels
+
+def zero_crossing_rate(norm=True):
+    df = pd.read_csv(Path.csv_file)
+    features = []
+    labels = []
+    for index, row in df.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file + row['file'], res_type='kaiser_fast')
+        frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
+        zcr_val = np.array([pp.zero_crossing_rate(frame) for frame in frames])
+        if norm:
+            zcr_val = pp.norm_feature(zcr_val)
+        features.append(zcr_val)
+
+        label = int(row['class'])
+        labels.append(label)
+
+    features = pp.padding(features, Param.features_dim)
+
+    return features, labels
+
+def entroy_of_energy(norm=True):
+    df = pd.read_csv(Path.csv_file)
+    features = []
+    labels = []
+    for index, row in df.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file + row['file'], res_type='kaiser_fast')
+        frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
+        ee = np.array([pp.zero_crossing_rate(frame) for frame in frames])
+        if norm:
+            ee = pp.norm_feature(ee)
+        features.append(ee)
+
+        label = int(row['class'])
+        labels.append(label)
+
+    features = pp.padding(features, Param.features_dim)
+
+    return features, labels
+
+def main():
+    # features, labels = mfcc()
+    # features, labels = audio_energy()
+    # features, labels = zero_crossing_rate()
+    features, labels = entroy_of_energy()
+
+    n_classes = len(set(labels))
     labels = to_categorical(labels, dtype ="uint8")
 
     model = arch.mlp(features.shape[1], n_classes)
@@ -73,9 +138,6 @@ def main():
         should_save=True,
         path=Path.save_plot+'loss.png'
     )
-
-    # for label, feature in zip(labels, features):
-    #     print('{} --> {}'.format(feature, label))
 
 if __name__ == "__main__":
     main()
