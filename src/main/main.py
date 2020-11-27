@@ -111,7 +111,7 @@ def main():
     history = model.fit(
         x=features,
         y=labels,
-        validation_data=(features, labels),
+        validation_split=Param.val_split,
         epochs=Param.epoch,
         batch_size=Param.batch_size,
         verbose=1

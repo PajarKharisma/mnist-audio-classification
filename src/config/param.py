@@ -4,5 +4,5 @@ class Param():
     features_dim = 40
 
     epoch = 100
-    val_split = 0.2
+    val_split = 0.3
     batch_size = 32
