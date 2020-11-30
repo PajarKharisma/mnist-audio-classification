@@ -20,24 +20,36 @@ import src.utils.models as arch
 import src.utils.visual as vis
 
 def create_dataset():
-    data_preparation.create_csv(Path.csv_file, Path.audio_file)
+    data_preparation.create_csv(Path.csv_file_train, Path.audio_file_train)
+    data_preparation.create_csv(Path.csv_file_test, Path.audio_file_test)
 
 def mfcc():
-    df = pd.read_csv(Path.csv_file)
-    features = []
-    labels = []
-    for index, row in df.iterrows():
-        signal, sample_rate = librosa.load(Path.audio_file + row['file'], res_type='kaiser_fast')
+    df_train = pd.read_csv(Path.csv_file_train)
+    x_train = []
+    y_train = []
+    for index, row in df_train.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file_train + row['file'], res_type='kaiser_fast')
         emp_signal = pp.pre_emp_op(signal)
         feature = pp.extract_features(emp_signal, sample_rate)
         label = int(row['class'])
 
-        features.append(feature)
-        labels.append(label)
+        x_train.append(feature)
+        y_train.append(label)
+    x_train = np.array(x_train)
 
-    features = np.array(features)
+    df_test = pd.read_csv(Path.csv_file_test)
+    x_test = []
+    y_test = []
+    for index, row in df_test.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file_test + row['file'], res_type='kaiser_fast')
+        emp_signal = pp.pre_emp_op(signal)
+        feature = pp.extract_features(emp_signal, sample_rate)
+        label = int(row['class'])
 
-    return feature, labels
+        x_test.append(feature)
+        y_test.append(label)
+    x_test = np.array(x_test)
+    return x_train, y_train, x_test, y_test
 
 def audio_energy(norm=True):
     df = pd.read_csv(Path.csv_file)
@@ -98,20 +110,21 @@ def entroy_of_energy(norm=True):
     return features, labels
 
 def main():
-    # features, labels = mfcc()
+    x_train, y_train, x_test, y_test = mfcc()
     # features, labels = audio_energy()
     # features, labels = zero_crossing_rate()
-    features, labels = entroy_of_energy()
+    # features, labels = entroy_of_energy()
 
-    n_classes = len(set(labels))
-    labels = to_categorical(labels, dtype ="uint8")
+    n_classes = len(set(y_train))
+    y_train = to_categorical(y_train, dtype ="uint8")
+    y_test = to_categorical(y_test, dtype ="uint8")
 
-    model = arch.mlp(features.shape[1], n_classes)
+    model = arch.mlp(x_train.shape[1], n_classes)
     model.summary()
     history = model.fit(
-        x=features,
-        y=labels,
-        validation_split=Param.val_split,
+        x=x_train,
+        y=y_train,
+        validation_data=(x_test, y_test),
         epochs=Param.epoch,
         batch_size=Param.batch_size,
         verbose=1

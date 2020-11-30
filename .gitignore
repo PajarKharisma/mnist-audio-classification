@@ -1,5 +1,6 @@
 .vscode
-/dataset/audio
+/dataset/train
+/dataset/test
 /models/*.h5
 /test/*
 /history/**/*.h5
