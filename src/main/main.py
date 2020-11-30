@@ -49,71 +49,113 @@ def mfcc():
         x_test.append(feature)
         y_test.append(label)
     x_test = np.array(x_test)
+
     return x_train, y_train, x_test, y_test
 
 def audio_energy(norm=True):
-    df = pd.read_csv(Path.csv_file)
-    features = []
-    labels = []
-    
-    for index, row in df.iterrows():
-        signal, sample_rate = librosa.load(Path.audio_file + row['file'], res_type='kaiser_fast')
+    df_train = pd.read_csv(Path.csv_file_train)
+    x_train = []
+    y_train = []
+    for index, row in df_train.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file_train + row['file'], res_type='kaiser_fast')
         frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
         energy = np.array([pp.audio_energy(frame) for frame in frames])
         if norm:
             energy = pp.norm_feature(energy)
-        features.append(energy)
+        x_train.append(energy)
 
         label = int(row['class'])
-        labels.append(label)
+        y_train.append(label)
+    x_train = pp.padding(x_train, Param.features_dim)
 
-    features = pp.padding(features, Param.features_dim)
+    df_test = pd.read_csv(Path.csv_file_test)
+    x_test = []
+    y_test = []
+    for index, row in df_test.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file_test + row['file'], res_type='kaiser_fast')
+        frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
+        energy = np.array([pp.audio_energy(frame) for frame in frames])
+        if norm:
+            energy = pp.norm_feature(energy)
+        x_test.append(energy)
 
-    return features, labels
+        label = int(row['class'])
+        y_test.append(label)
+    x_test = pp.padding(x_test, Param.features_dim)
+
+    return x_train, y_train, x_test, y_test
 
 def zero_crossing_rate(norm=True):
-    df = pd.read_csv(Path.csv_file)
-    features = []
-    labels = []
-    for index, row in df.iterrows():
-        signal, sample_rate = librosa.load(Path.audio_file + row['file'], res_type='kaiser_fast')
+    df_train = pd.read_csv(Path.csv_file_train)
+    x_train = []
+    y_train = []
+    for index, row in df_train.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file_train + row['file'], res_type='kaiser_fast')
         frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
         zcr_val = np.array([pp.zero_crossing_rate(frame) for frame in frames])
         if norm:
             zcr_val = pp.norm_feature(zcr_val)
-        features.append(zcr_val)
+        x_train.append(zcr_val)
 
         label = int(row['class'])
-        labels.append(label)
+        y_train.append(label)
+    x_train = pp.padding(x_train, Param.features_dim)
 
-    features = pp.padding(features, Param.features_dim)
+    df_test = pd.read_csv(Path.csv_file_test)
+    x_test = []
+    y_test = []
+    for index, row in df_test.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file_test + row['file'], res_type='kaiser_fast')
+        frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
+        zcr_val = np.array([pp.zero_crossing_rate(frame) for frame in frames])
+        if norm:
+            zcr_val = pp.norm_feature(zcr_val)
+        x_test.append(zcr_val)
 
-    return features, labels
+        label = int(row['class'])
+        y_test.append(label)
+    x_test = pp.padding(x_test, Param.features_dim)
+
+    return x_train, y_train, x_test, y_test
 
 def entroy_of_energy(norm=True):
-    df = pd.read_csv(Path.csv_file)
-    features = []
-    labels = []
-    for index, row in df.iterrows():
-        signal, sample_rate = librosa.load(Path.audio_file + row['file'], res_type='kaiser_fast')
+    df_train = pd.read_csv(Path.csv_file_train)
+    x_train = []
+    y_train = []
+    for index, row in df_train.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file_train + row['file'], res_type='kaiser_fast')
         frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
         ee = np.array([pp.zero_crossing_rate(frame) for frame in frames])
         if norm:
             ee = pp.norm_feature(ee)
-        features.append(ee)
+        x_train.append(ee)
 
         label = int(row['class'])
-        labels.append(label)
+        y_train.append(label)
+    x_train = pp.padding(x_train, Param.features_dim)
 
-    features = pp.padding(features, Param.features_dim)
+    df_test = pd.read_csv(Path.csv_file_test)
+    x_test = []
+    y_test = []
+    for index, row in df_test.iterrows():
+        signal, sample_rate = librosa.load(Path.audio_file_test + row['file'], res_type='kaiser_fast')
+        frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
+        ee = np.array([pp.zero_crossing_rate(frame) for frame in frames])
+        if norm:
+            ee = pp.norm_feature(ee)
+        x_test.append(ee)
 
-    return features, labels
+        label = int(row['class'])
+        y_test.append(label)
+    x_test = pp.padding(x_test, Param.features_dim)
+
+    return x_train, y_train, x_test, y_test
 
 def main():
     x_train, y_train, x_test, y_test = mfcc()
-    # features, labels = audio_energy()
-    # features, labels = zero_crossing_rate()
-    # features, labels = entroy_of_energy()
+    # x_train, y_train, x_test, y_test = audio_energy()
+    # x_train, y_train, x_test, y_test = zero_crossing_rate()
+    # x_train, y_train, x_test, y_test = entroy_of_energy()
 
     n_classes = len(set(y_train))
     y_train = to_categorical(y_train, dtype ="uint8")
