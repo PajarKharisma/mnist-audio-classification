@@ -125,7 +125,7 @@ def entroy_of_energy(norm=True):
     for index, row in df_train.iterrows():
         signal, sample_rate = librosa.load(Path.audio_file_train + row['file'], res_type='kaiser_fast')
         frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
-        ee = np.array([pp.zero_crossing_rate(frame) for frame in frames])
+        ee = np.array([pp.entropy_of_energy(frame) for frame in frames])
         if norm:
             ee = pp.norm_feature(ee)
         x_train.append(ee)
@@ -140,7 +140,7 @@ def entroy_of_energy(norm=True):
     for index, row in df_test.iterrows():
         signal, sample_rate = librosa.load(Path.audio_file_test + row['file'], res_type='kaiser_fast')
         frames = pp.windowing(signal, sample_rate, Param.window_size, Param.window_stride)
-        ee = np.array([pp.zero_crossing_rate(frame) for frame in frames])
+        ee = np.array([pp.entropy_of_energy(frame) for frame in frames])
         if norm:
             ee = pp.norm_feature(ee)
         x_test.append(ee)
